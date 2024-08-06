@@ -5,6 +5,10 @@
 
 # How to use
 1. Run the desired ROS nodes on the robot
+   1. Open a terminal and run "roslaunch ~/Desktop/robot_2d.launch"
+   2. Open another terminal and run "source_carto"
+   3. At the same terminal in ii. run "roslaunch cartographer_ros service_robot.launch"
 2. Run the rosbridge websocket server on the robot
+   1. Open a terminal and run "rosrun rosbridge_server rosbridge_websocket"
 3. Run the HKCLRUDPServer.py on any machine
 4. Run another client to connect to the UDP server
