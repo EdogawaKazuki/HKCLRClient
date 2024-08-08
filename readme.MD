@@ -14,4 +14,4 @@
 4. Run another client to connect to the UDP server
 
 # Something about the MOVEYAW
-1.Just input what you need yaw to supersuper(yaw)
+Just input what you need yaw to set_yaw(yaw)
