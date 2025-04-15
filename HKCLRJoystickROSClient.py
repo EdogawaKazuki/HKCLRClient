@@ -160,6 +160,7 @@ if __name__ == "__main__":
         ros_client = HKCLRROSClient.HKCLRROSClient()
         ros_client.connect(host='192.168.0.189', port=9090)
         ros_client.set_velocity_topic_name("/cmd_vel")
+        ros_client.set_view_angle_topic_name("/cmd_view_angle")
         ros_client.start_pos_listener()
 
     # Initialize display
@@ -179,7 +180,9 @@ if __name__ == "__main__":
                     ros_client.set_linear_angular_vel(control_output["linear_velocity"], control_output["angular_velocity"])
                 else:
                     ros_client.set_linear_angular_vel(0, 0)
-            
+                ros_client.set_view_angle(control_output["view_angle_x"], control_output["view_angle_y"])
+                    
+
             # Update and show display
             display = draw_control_output(display, control_output)
             cv2.imshow("Joystick Control", display)

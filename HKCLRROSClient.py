@@ -29,6 +29,12 @@ class HKCLRROSClient:
         self.ros.run()
         self.is_connected = True
     
+    def set_view_angle_topic_name(self, topic_name):
+        if self.view_angle_publisher is not None:
+            self.view_angle_publisher.unadvertise()
+        self.view_angle_publisher = self.create_publisher(topic_name, "geometry_msgs/Twist")
+        self.set_view_angle(0, 0)
+
     def set_velocity_topic_name(self, topic_name):
         if self.velocity_publisher is not None:
             self.velocity_publisher.unadvertise()
@@ -60,8 +66,11 @@ class HKCLRROSClient:
     
     def set_linear_angular_vel(self, velocity=0, angular=0):
         if self.is_connected:
-            self.velocity_publisher.publish(roslibpy.Message({"linear": {"x": velocity, "y": 0, "z": 0}}))
-            self.velocity_publisher.publish(roslibpy.Message({"angular": {"x": 0, "y": 0, "z": angular}}))
+            self.velocity_publisher.publish(roslibpy.Message({"linear": {"x": velocity, "y": 0, "z": angular}}))
+
+    def set_view_angle(self, x=0, y=0):
+        if self.is_connected:
+            self.view_angle_publisher.publish(roslibpy.Message({"view_angle": {"x": x, "y": y}}))
 
     def get_robot_pos(self):
         return self.robot_pos
