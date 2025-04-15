@@ -23,6 +23,51 @@ def draw_joystick_state(display, move_axis_value, view_axis_value, throttle_valu
                        primary_right_value, secondary_right_value, primary_left_value, secondary_left_value):
     height, width = display.shape[:2]
     
+    # Calculate control values
+    base_angular_velocity = move_axis_value[0] * CONTROL_CONFIG["max_angular_velocity"]
+    base_linear_velocity = (throttle_value - reverse_value) * CONTROL_CONFIG["max_velocity"]
+    view_angle_x = view_axis_value[0] * CONTROL_CONFIG["max_view_angle_x"]
+    view_angle_y = view_axis_value[1] * CONTROL_CONFIG["max_view_angle_y"]
+    
+    # Draw control output section
+    output_y = height - 150
+    cv2.rectangle(display, (10, output_y), (width - 10, height - 10), DISPLAY_CONFIG["colors"]["grid"], 1)
+    cv2.putText(display, "Control Output", (20, output_y + 25), 
+                cv2.FONT_HERSHEY_SIMPLEX, DISPLAY_CONFIG["text_size"], 
+                DISPLAY_CONFIG["colors"]["text"], DISPLAY_CONFIG["text_thickness"])
+    
+    # Draw angular velocity bar
+    ang_vel_width = int((base_angular_velocity / CONTROL_CONFIG["max_angular_velocity"]) * (width - 40) / 2)
+    cv2.rectangle(display, (20, output_y + 40), (width//2 - 20, output_y + 60), 
+                 DISPLAY_CONFIG["colors"]["grid"], 1)
+    if ang_vel_width != 0:
+        color = DISPLAY_CONFIG["colors"]["movement"] if ang_vel_width > 0 else DISPLAY_CONFIG["colors"]["reverse"]
+        cv2.rectangle(display, (width//4, output_y + 40), 
+                     (width//4 + ang_vel_width, output_y + 60), color, -1)
+    cv2.putText(display, f"Angular Velocity: {base_angular_velocity:.2f}", 
+                (20, output_y + 80), cv2.FONT_HERSHEY_SIMPLEX, DISPLAY_CONFIG["text_size"], 
+                DISPLAY_CONFIG["colors"]["text"], DISPLAY_CONFIG["text_thickness"])
+    
+    # Draw linear velocity bar
+    lin_vel_width = int((base_linear_velocity / CONTROL_CONFIG["max_velocity"]) * (width - 40) / 2)
+    cv2.rectangle(display, (20, output_y + 100), (width//2 - 20, output_y + 120), 
+                 DISPLAY_CONFIG["colors"]["grid"], 1)
+    if lin_vel_width != 0:
+        color = DISPLAY_CONFIG["colors"]["throttle"] if lin_vel_width > 0 else DISPLAY_CONFIG["colors"]["reverse"]
+        cv2.rectangle(display, (width//4, output_y + 100), 
+                     (width//4 + lin_vel_width, output_y + 120), color, -1)
+    cv2.putText(display, f"Linear Velocity: {base_linear_velocity:.2f}", 
+                (20, output_y + 140), cv2.FONT_HERSHEY_SIMPLEX, DISPLAY_CONFIG["text_size"], 
+                DISPLAY_CONFIG["colors"]["text"], DISPLAY_CONFIG["text_thickness"])
+    
+    # Draw view angles
+    cv2.putText(display, f"View Angle X: {view_angle_x:.1f}°", 
+                (width//2 + 20, output_y + 40), cv2.FONT_HERSHEY_SIMPLEX, DISPLAY_CONFIG["text_size"], 
+                DISPLAY_CONFIG["colors"]["text"], DISPLAY_CONFIG["text_thickness"])
+    cv2.putText(display, f"View Angle Y: {view_angle_y:.1f}°", 
+                (width//2 + 20, output_y + 80), cv2.FONT_HERSHEY_SIMPLEX, DISPLAY_CONFIG["text_size"], 
+                DISPLAY_CONFIG["colors"]["text"], DISPLAY_CONFIG["text_thickness"])
+    
     # Draw movement joystick
     move_x = int(width//4 + move_axis_value[0] * width//8)
     move_y = int(height//2 + move_axis_value[1] * height//8)
@@ -105,8 +150,8 @@ def send_command(move_axis_value, view_axis_value, throttle_value, reverse_value
     base_angular_velocity = move_axis_value[0] * CONTROL_CONFIG["max_angular_velocity"]
     base_linear_velocity = (throttle_value - reverse_value) * CONTROL_CONFIG["max_velocity"]
 
-    view_angle_x = view_axis_value[0] * CONTROL_CONFIG["max_view_angle"]
-    view_angle_y = view_axis_value[1] * CONTROL_CONFIG["max_view_angle"]
+    view_angle_x = view_axis_value[0] * CONTROL_CONFIG["max_view_angle_x"]
+    view_angle_y = view_axis_value[1] * CONTROL_CONFIG["max_view_angle_y"]
 
     print(f"Base Angular Velocity: {base_angular_velocity:.2f}")
     print(f"Base Linear Velocity: {base_linear_velocity:.2f}")
@@ -142,18 +187,18 @@ def main():
     controller_mapping = JOYSTICK_CONFIG[joystick.get_name()]
     
     # Initialize control values
-    throttle_axis = controller_mapping["axis"]["right_trigger"]
+    throttle_axis = controller_mapping["axis"]["throttle"]
     throttle_value = 0
     
-    reverse_axis = controller_mapping["axis"]["left_trigger"]
+    reverse_axis = controller_mapping["axis"]["reverse"]
     reverse_value = 0
     
-    move_axis_x = controller_mapping["axis"]["left_x"]
-    move_axis_y = controller_mapping["axis"]["left_y"]
+    move_axis_x = controller_mapping["axis"]["move_x"]
+    move_axis_y = controller_mapping["axis"]["move_y"]
     move_axis_value = [0, 0]
     
-    view_axis_x = controller_mapping["axis"]["right_x"]
-    view_axis_y = controller_mapping["axis"]["right_y"]
+    view_axis_x = controller_mapping["axis"]["view_x"]
+    view_axis_y = controller_mapping["axis"]["view_y"]
     view_axis_value = [0, 0]
     
     primary_right = controller_mapping["button"]["primary_right"]

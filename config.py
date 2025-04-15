@@ -14,8 +14,8 @@ JOYSTICK_CONFIG = {
             "secondary_right": 1,
             "primary_left": 2,
             "secondary_left": 3,
-            "start_cmd": 9, # right trigger
-            "left_shoulder": 10,
+            "left_shoulder": 9,
+            "start_cmd": 10, # right shoulder
             "up": 11,
             "down": 12,
             "left": 13,
